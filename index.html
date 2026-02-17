@@ -12,9 +12,9 @@
 <style>
 :root{
   --bg:#05080f;
-  --panel:#0b1220;
+  --panel:#0c1624;
   --accent:#00d4ff;
-  --accent2:#0090ff;
+  --accent-strong:#00ffff;
   --text:#cfe8ff;
 }
 
@@ -27,14 +27,15 @@ body{
   overflow:hidden;
 }
 
-canvas{
+/* ===== CANVAS ===== */
+#lora{
   position:fixed;
   inset:0;
   z-index:0;
   background:radial-gradient(circle at center,#0b1625 0%,#04070d 70%);
 }
 
-/* HEADER */
+/* ===== HEADER ===== */
 header{
   position:relative;
   z-index:2;
@@ -43,7 +44,7 @@ header{
   align-items:center;
   padding:20px 40px;
   border-bottom:1px solid rgba(0,212,255,0.15);
-  backdrop-filter:blur(8px);
+  backdrop-filter:blur(6px);
 }
 
 .callsign{
@@ -60,7 +61,7 @@ header{
   color:#00ff88;
 }
 
-/* MAIN */
+/* ===== MAIN ===== */
 main{
   position:relative;
   z-index:2;
@@ -71,16 +72,17 @@ main{
 }
 
 .panel{
-  background:rgba(10,20,35,0.8);
-  border:1px solid rgba(0,212,255,0.2);
-  padding:50px;
-  width:500px;
+  background:rgba(12,22,36,0.75);
+  border:1px solid rgba(0,212,255,0.25);
+  padding:60px;
+  width:520px;
   text-align:center;
-  border-radius:8px;
+  border-radius:12px;
   backdrop-filter:blur(20px);
-  box-shadow:0 0 60px rgba(0,212,255,0.08);
+  box-shadow:0 0 80px rgba(0,212,255,0.08);
 }
 
+/* ICON */
 .hero-icon{
   width:120px;
   margin-bottom:25px;
@@ -102,29 +104,23 @@ h1{
 
 h1 span{
   color:var(--accent);
-  text-shadow:0 0 20px var(--accent);
+  text-shadow:0 0 25px var(--accent);
 }
 
 .sub{
-  font-size:0.85rem;
+  font-size:0.9rem;
   opacity:0.7;
-  margin-bottom:40px;
+  margin-bottom:50px;
 }
 
-/* 3D FLASH BUTTON */
-/* ===== ULTRA PREMIUM FLASH BUTTON ===== */
-
-  <div class="flash-wrapper">
-  <esp-web-install-button id="installer" manifest="manifest.json"></esp-web-install-button>
-  <button id="flashBtn" class="flash-btn">⚡ FLASH FIRMWARE</button>
-</div>
+/* ===== FLASH BUTTON SYSTEM ===== */
 
 .flash-wrapper{
   position:relative;
   display:inline-block;
 }
 
-/* ascundem butonul original */
+/* componenta reală, invizibilă */
 #installer{
   position:absolute;
   inset:0;
@@ -132,7 +128,7 @@ h1 span{
   cursor:pointer;
 }
 
-/* BUTONUL NOSTRU REAL */
+/* butonul vizibil */
 .flash-btn{
   font-family:'Exo 2';
   font-weight:700;
@@ -142,23 +138,22 @@ h1 span{
   padding:18px 70px;
   border-radius:50px;
 
-  background:linear-gradient(135deg,#00d4ff,#008cff);
-  color:#001018;
+  background:rgba(0,212,255,0.08);
+  color:var(--accent);
 
-  border:none;
+  border:1px solid rgba(0,212,255,0.5);
+
   cursor:pointer;
-
+  position:relative;
+  overflow:hidden;
   transition:all .25s ease;
 
   box-shadow:
-    0 0 0 1px rgba(0,212,255,0.4) inset,
-    0 0 30px rgba(0,212,255,0.4);
-
-  position:relative;
-  overflow:hidden;
+    0 0 0 1px rgba(0,212,255,0.2) inset,
+    0 0 30px rgba(0,212,255,0.3);
 }
 
-/* glowing animated energy */
+/* animated energy sweep */
 .flash-btn::before{
   content:"";
   position:absolute;
@@ -169,7 +164,7 @@ h1 span{
       rgba(255,255,255,0.4),
       transparent);
   transform:translateX(-100%);
-  transition:0.6s;
+  transition:0.7s;
 }
 
 .flash-btn:hover::before{
@@ -178,8 +173,8 @@ h1 span{
 
 .flash-btn:hover{
   box-shadow:
-    0 0 0 1px rgba(0,212,255,0.6) inset,
-    0 0 50px rgba(0,212,255,0.8);
+    0 0 0 1px rgba(0,212,255,0.5) inset,
+    0 0 50px rgba(0,212,255,0.9);
   transform:translateY(-2px);
 }
 
@@ -189,47 +184,7 @@ h1 span{
     0 0 25px rgba(0,212,255,1);
 }
 
-
-/* glowing animated edge */
-esp-web-install-button::part(button)::before{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  border-radius:50px;
-  background:linear-gradient(90deg,
-      transparent,
-      rgba(0,212,255,0.9),
-      transparent);
-  background-size:200% 100%;
-  animation:energyFlow 3s linear infinite;
-  z-index:-1;
-  opacity:0.6;
-}
-
-@keyframes energyFlow{
-  0%{background-position:200% 0}
-  100%{background-position:-200% 0}
-}
-
-/* hover */
-esp-web-install-button::part(button):hover{
-  background:rgba(0,212,255,0.15);
-  box-shadow:
-    0 0 0 1px rgba(0,212,255,0.4) inset,
-    0 0 40px rgba(0,212,255,0.6);
-  transform:translateY(-2px);
-}
-
-/* click */
-esp-web-install-button::part(button):active{
-  transform:scale(0.97);
-  box-shadow:
-    0 0 25px rgba(0,212,255,0.8);
-}
-
-
-
-/* FOOTER */
+/* ===== FOOTER ===== */
 footer{
   position:fixed;
   bottom:15px;
@@ -254,13 +209,16 @@ footer{
 
 <main>
 <div class="panel">
+
 <img src="favicon.png" class="hero-icon">
+
 <h1>WEB <span>FLASHER</span></h1>
 <p class="sub">ESP32-S3 Firmware Installer · Direct din browser</p>
 
-<esp-web-install-button manifest="manifest.json">
-<button slot="activate">⚡ FLASH FIRMWARE</button>
-</esp-web-install-button>
+<div class="flash-wrapper">
+  <esp-web-install-button id="installer" manifest="manifest.json"></esp-web-install-button>
+  <button class="flash-btn">⚡ FLASH FIRMWARE</button>
+</div>
 
 </div>
 </main>
@@ -272,13 +230,12 @@ github.com/yo2ldk/WEB-FLASHER · 2026
 <script>
 const canvas=document.getElementById("lora");
 const ctx=canvas.getContext("2d");
-
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
 let nodes=[];
+let beacon=0;
 const count=70;
-let beaconPhase=0;
 
 for(let i=0;i<count;i++){
 nodes.push({
@@ -291,7 +248,7 @@ vy:(Math.random()-0.5)*0.3
 
 function draw(){
 ctx.clearRect(0,0,canvas.width,canvas.height);
-beaconPhase+=0.02;
+beacon+=0.02;
 
 for(let i=0;i<nodes.length;i++){
 let n=nodes[i];
@@ -312,7 +269,7 @@ let dy=n.y-nodes[j].y;
 let dist=Math.sqrt(dx*dx+dy*dy);
 
 if(dist<160){
-let pulse=(Math.sin(beaconPhase*3 - dist*0.02)+1)/2;
+let pulse=(Math.sin(beacon*3 - dist*0.02)+1)/2;
 ctx.strokeStyle=`rgba(0,212,255,${pulse*(1-dist/160)})`;
 ctx.lineWidth=1.2;
 ctx.beginPath();
@@ -323,8 +280,8 @@ ctx.stroke();
 }
 }
 
-/* radio beacon ring from center */
-let radius=(Math.sin(beaconPhase)*0.5+0.5)*400;
+/* beacon ring */
+let radius=(Math.sin(beacon)*0.5+0.5)*400;
 ctx.beginPath();
 ctx.arc(canvas.width/2,canvas.height/2,radius,0,Math.PI*2);
 ctx.strokeStyle="rgba(0,212,255,0.15)";
@@ -333,7 +290,6 @@ ctx.stroke();
 
 requestAnimationFrame(draw);
 }
-
 draw();
 
 window.addEventListener("resize",()=>{
