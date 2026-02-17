@@ -115,10 +115,12 @@ h1 span{
 
 /* ===== FLASH BUTTON SYSTEM ===== */
 
-.flash-wrapper{
-  position:relative;
-  display:inline-block;
-}
+<div class="flash-wrapper">
+  <esp-web-install-button id="installer" manifest="manifest.json"></esp-web-install-button>
+  <button id="flashBtn" class="flash-btn">⚡ FLASH FIRMWARE</button>
+</div>
+  
+
 
 /* componenta reală, invizibilă */
 #installer{
