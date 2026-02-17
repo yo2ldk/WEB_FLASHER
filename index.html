@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YO2LDK – Web Flasher</title>
+<title>YO2LDK – LoRa Mission Control</title>
 
 <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
 
@@ -11,23 +11,24 @@
 
 <style>
 :root{
-  --bg:#05080f;
+  --bg:#04070d;
   --panel:#0c1624;
   --accent:#00d4ff;
-  --accent-strong:#00ffff;
+  --green:#00ff88;
+  --warn:#ffaa00;
+  --error:#ff0040;
   --text:#cfe8ff;
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
-
 body{
   background:var(--bg);
-  color:var(--text);
   font-family:'Exo 2',sans-serif;
+  color:var(--text);
   overflow:hidden;
 }
 
-/* ===== CANVAS BACKGROUND ===== */
+/* ===== CANVAS ===== */
 #lora{
   position:fixed;
   inset:0;
@@ -41,45 +42,41 @@ header{
   z-index:2;
   display:flex;
   justify-content:space-between;
-  align-items:center;
   padding:20px 40px;
-  border-bottom:1px solid rgba(0,212,255,0.15);
-  backdrop-filter:blur(6px);
+  font-family:'Share Tech Mono';
+  border-bottom:1px solid rgba(0,212,255,0.2);
 }
 
 .callsign{
-  font-family:'Share Tech Mono';
   color:var(--accent);
   letter-spacing:4px;
-  font-size:1.3rem;
+  font-size:1.2rem;
   text-shadow:0 0 15px var(--accent);
 }
 
 .status{
-  font-family:'Share Tech Mono';
-  font-size:0.8rem;
-  color:#00ff88;
+  color:var(--green);
 }
 
-/* ===== MAIN ===== */
+/* ===== MAIN PANEL ===== */
 main{
   position:relative;
   z-index:2;
   display:flex;
   justify-content:center;
   align-items:center;
-  height:calc(100vh - 80px);
+  height:calc(100vh - 70px);
 }
 
 .panel{
   background:rgba(12,22,36,0.75);
-  border:1px solid rgba(0,212,255,0.25);
+  border:1px solid rgba(0,212,255,0.3);
+  border-radius:12px;
   padding:60px;
   width:520px;
   text-align:center;
-  border-radius:12px;
   backdrop-filter:blur(20px);
-  box-shadow:0 0 80px rgba(0,212,255,0.08);
+  box-shadow:0 0 100px rgba(0,212,255,0.08);
 }
 
 .hero-icon{
@@ -88,7 +85,6 @@ main{
   filter:drop-shadow(0 0 25px var(--accent));
   animation:float 5s ease-in-out infinite;
 }
-
 @keyframes float{
   0%,100%{transform:translateY(0)}
   50%{transform:translateY(-12px)}
@@ -98,81 +94,67 @@ h1{
   font-size:2.2rem;
   font-weight:900;
   letter-spacing:3px;
-  margin-bottom:10px;
 }
-
 h1 span{
   color:var(--accent);
-  text-shadow:0 0 25px var(--accent);
+  text-shadow:0 0 20px var(--accent);
 }
 
 .sub{
+  margin:20px 0 40px;
   font-size:0.9rem;
   opacity:0.7;
-  margin-bottom:50px;
 }
 
-/* ===== CUSTOM FLASH BUTTON ===== */
+/* ===== BUTTON ===== */
 .flash-btn{
   font-family:'Exo 2';
   font-weight:700;
   letter-spacing:3px;
   text-transform:uppercase;
-
   padding:18px 70px;
   border-radius:50px;
-
   background:rgba(0,212,255,0.08);
   color:var(--accent);
-
   border:1px solid rgba(0,212,255,0.5);
-
   cursor:pointer;
-  position:relative;
-  overflow:hidden;
-  transition:all .25s ease;
-
-  box-shadow:
-    0 0 0 1px rgba(0,212,255,0.2) inset,
-    0 0 30px rgba(0,212,255,0.3);
+  transition:.3s;
+  box-shadow:0 0 30px rgba(0,212,255,0.3);
 }
-
-/* animated sweep */
-.flash-btn::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(
-      120deg,
-      transparent,
-      rgba(255,255,255,0.4),
-      transparent);
-  transform:translateX(-100%);
-  transition:0.7s;
-}
-
-.flash-btn:hover::before{
-  transform:translateX(100%);
-}
-
 .flash-btn:hover{
-  box-shadow:
-    0 0 0 1px rgba(0,212,255,0.5) inset,
-    0 0 50px rgba(0,212,255,0.9);
+  box-shadow:0 0 60px rgba(0,212,255,0.9);
   transform:translateY(-2px);
 }
-
 .flash-btn:active{
   transform:scale(0.96);
-  box-shadow:0 0 25px rgba(0,212,255,1);
 }
 
-/* ===== HIDDEN INSTALLER ===== */
-esp-web-install-button{
-  display:none;
+/* dynamic states */
+.flash-btn.connecting{color:var(--warn);box-shadow:0 0 40px var(--warn);}
+.flash-btn.flashing{color:var(--accent);animation:pulse 1s infinite;}
+.flash-btn.done{color:var(--green);box-shadow:0 0 40px var(--green);}
+.flash-btn.error{color:var(--error);box-shadow:0 0 40px var(--error);}
+@keyframes pulse{
+  0%{box-shadow:0 0 20px var(--accent);}
+  50%{box-shadow:0 0 70px var(--accent);}
+  100%{box-shadow:0 0 20px var(--accent);}
 }
 
-/* ===== FOOTER ===== */
+/* ===== HUD ===== */
+.hud{
+  position:fixed;
+  top:90px;
+  left:40px;
+  font-family:'Share Tech Mono';
+  font-size:0.8rem;
+  line-height:1.8;
+  z-index:2;
+  opacity:0.8;
+}
+
+/* hide real installer */
+esp-web-install-button{display:none;}
+
 footer{
   position:fixed;
   bottom:15px;
@@ -191,21 +173,25 @@ footer{
 <canvas id="lora"></canvas>
 
 <header>
-<div class="callsign">YO2LDK</div>
-<div class="status">ONLINE</div>
+<div class="callsign">YO2LDK MISSION CONTROL</div>
+<div class="status">SYSTEM READY</div>
 </header>
+
+<div class="hud">
+NODE COUNT: <span id="nodeCount">0</span><br>
+SIGNAL LEVEL: <span id="signal">-90</span> dBm<br>
+FREQ: 433.775 MHz<br>
+MODE: LoRa SF12 BW125<br>
+STATUS: OPERATIONAL
+</div>
 
 <main>
 <div class="panel">
-
 <img src="favicon.png" class="hero-icon">
-
-<h1>WEB <span>FLASHER</span></h1>
-<p class="sub">ESP32-S3 Firmware Installer · Direct din browser</p>
+<h1>LORA <span>FLASHER</span></h1>
+<p class="sub">ESP32-S3 Firmware Installer</p>
 
 <button id="flashBtn" class="flash-btn">⚡ FLASH FIRMWARE</button>
-
-<!-- installer real, invizibil -->
 <esp-web-install-button id="installer" manifest="manifest.json"></esp-web-install-button>
 
 </div>
@@ -216,15 +202,18 @@ github.com/yo2ldk/WEB-FLASHER · 2026
 </footer>
 
 <script>
-/* ===== BACKGROUND LoRa ===== */
+/* ===== LORA BACKGROUND ===== */
 const canvas=document.getElementById("lora");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
 let nodes=[];
+let packets=[];
 let beacon=0;
 const count=70;
+
+document.getElementById("nodeCount").textContent=count;
 
 for(let i=0;i<count;i++){
 nodes.push({
@@ -241,8 +230,7 @@ beacon+=0.02;
 
 for(let i=0;i<nodes.length;i++){
 let n=nodes[i];
-n.x+=n.vx;
-n.y+=n.vy;
+n.x+=n.vx;n.y+=n.vy;
 if(n.x<0||n.x>canvas.width)n.vx*=-1;
 if(n.y<0||n.y>canvas.height)n.vy*=-1;
 
@@ -255,45 +243,67 @@ for(let j=i+1;j<nodes.length;j++){
 let dx=n.x-nodes[j].x;
 let dy=n.y-nodes[j].y;
 let dist=Math.sqrt(dx*dx+dy*dy);
-
 if(dist<160){
-let pulse=(Math.sin(beacon*3 - dist*0.02)+1)/2;
-ctx.strokeStyle=`rgba(0,212,255,${pulse*(1-dist/160)})`;
-ctx.lineWidth=1;
+ctx.strokeStyle="rgba(0,212,255,0.2)";
 ctx.beginPath();
 ctx.moveTo(n.x,n.y);
 ctx.lineTo(nodes[j].x,nodes[j].y);
 ctx.stroke();
+
+if(Math.random()<0.002){
+packets.push({x:n.x,y:n.y,tx:nodes[j].x,ty:nodes[j].y,progress:0});
+}
 }
 }
 }
 
-/* beacon ring */
-let radius=(Math.sin(beacon)*0.5+0.5)*400;
+/* packets moving */
+packets.forEach(p=>{
+p.progress+=0.02;
+let x=p.x+(p.tx-p.x)*p.progress;
+let y=p.y+(p.ty-p.y)*p.progress;
 ctx.beginPath();
-ctx.arc(canvas.width/2,canvas.height/2,radius,0,Math.PI*2);
-ctx.strokeStyle="rgba(0,212,255,0.15)";
-ctx.lineWidth=2;
-ctx.stroke();
+ctx.arc(x,y,3,0,Math.PI*2);
+ctx.fillStyle="#00ffff";
+ctx.fill();
+});
+packets=packets.filter(p=>p.progress<1);
 
 requestAnimationFrame(draw);
 }
 draw();
 
-window.addEventListener("resize",()=>{
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-});
+/* dynamic signal */
+setInterval(()=>{
+let val=-70-Math.floor(Math.random()*20);
+document.getElementById("signal").textContent=val;
+},1500);
 
-/* ===== FLASH CONTROL ===== */
+/* ===== FLASH BUTTON ===== */
 const flashBtn=document.getElementById("flashBtn");
 const installer=document.getElementById("installer");
 
+function setState(s){
+flashBtn.className="flash-btn "+s;
+switch(s){
+case"connecting":flashBtn.textContent="🔌 CONNECTING...";break;
+case"flashing":flashBtn.textContent="📡 FLASHING...";break;
+case"done":flashBtn.textContent="✅ DONE";break;
+case"error":flashBtn.textContent="❌ ERROR";break;
+default:flashBtn.textContent="⚡ FLASH FIRMWARE";
+}
+}
+
 flashBtn.addEventListener("click",()=>{
-  const internalBtn = installer.shadowRoot.querySelector("button");
-  if(internalBtn){
-    internalBtn.click();
-  }
+try{
+setState("connecting");
+const internal=installer.shadowRoot.querySelector("button");
+internal.click();
+setTimeout(()=>setState("flashing"),2000);
+setTimeout(()=>setState("done"),9000);
+}catch{
+setState("error");
+}
 });
 </script>
 
