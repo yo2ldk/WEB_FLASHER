@@ -317,7 +317,20 @@ setState("error");
 </script>
 
 <script>
-fetch("https://api.countapi.xyz/hit/yo2ldk-webflasher/visits")
+const namespace = "yo2ldk-ultimate-lora-tracker";
+const key = "visits";
+
+fetch(`https://api.countapi.xyz/get/${namespace}/${key}`)
+  .then(res => res.json())
+  .then(data => {
+
+    // dacă nu există încă, îl creăm
+    if(!data.value){
+      return fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
+    }
+    return data;
+
+  })
   .then(res => res.json())
   .then(data => {
 
@@ -325,10 +338,10 @@ fetch("https://api.countapi.xyz/hit/yo2ldk-webflasher/visits")
     const counter = document.getElementById("visitCount");
 
     let current = 0;
-    const speed = Math.max(10, target / 100);
+    const increment = Math.max(1, Math.floor(target / 80));
 
     const interval = setInterval(() => {
-      current += Math.ceil(speed);
+      current += increment;
       if(current >= target){
         current = target;
         clearInterval(interval);
@@ -338,9 +351,10 @@ fetch("https://api.countapi.xyz/hit/yo2ldk-webflasher/visits")
 
   })
   .catch(() => {
-    document.getElementById("visitCount").textContent = "ERROR";
+    document.getElementById("visitCount").textContent = "OFFLINE";
   });
 </script>
+
   
 </body>
 </html>
